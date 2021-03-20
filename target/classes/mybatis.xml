@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <properties resource="JDBC.properties"/>
+    <settings>
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+    </settings>
+
+<!--    <typeAliases>-->
+<!--&lt;!&ndash;        配置别名&ndash;&gt;-->
+<!--&lt;!&ndash;        <package name=""/>&ndash;&gt;-->
+<!--    </typeAliases>-->
+    <plugins>
+        <plugin interceptor="com.github.pagehelper.PageInterceptor"></plugin>
+    </plugins>
+
+    <environments default="development">
+        <environment id="development">
+            <!--           transactionManager：mybatis的事务类型
+                         -->
+            <transactionManager type="JDBC"/>
+            <!--            连接池-->
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${URL}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+
+            </dataSource>
+        </environment>
+    </environments>
+    <mappers>
+        <mapper resource="dao_interface/DbMethod.xml"/>
+    </mappers>
+</configuration>

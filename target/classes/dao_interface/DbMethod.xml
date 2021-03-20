@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="dao_interface.DbMethod">
+    <!--parameterType属性，可以不使用，因为mybatis可以通过反射事表该类型-->
+<!--    #和$区别
+            注意:
+                使用#，可以防止sql注入，使用？做占位符
+                使用$，会有sql】注入的风险，字符串拼接，即可以进行字符串拼接，执行一些危害数据库的操作，所以不适用$s-->
+<!--    resultType：
+            可写实体类类型，基本数据类型，注意最好都写全限定名称，并且不要直接使用与每一张数据表同名的实体类类型，
+            最好，根据需要的字段，重新定义实体类，为了方便多表查询。resultType返回的是该value的类型-->
+<!--    resultMap：解决数据表和实体类属性不一致的问题
+           1、 使用resultMap映射，解决数据表和实体类属性不一致的问题
+           2、 也可使用查询语句起别名的方式
+           3、 也可以在实体类中定义构造方法-->
+
+    <select id="selectInfo" resultType="daos.User" parameterType="java.lang.Integer">
+        select Rid,Rname,Rage,Rsex from Ruser where Rid=#{id} order by Rid
+    </select>
+<!--使用和#{}语法，去获取，在接口中定义的别名，注意值要与该别名一致-->
+<!--    如果数据库参数和实体类参数的属性名称不一致，可以使用resultMap标签进行数据库和实体类属性映射-->
+    <resultMap id="UserPara" type="daos.User">
+        <id column="Rid" property="Rid"></id>
+        <result column="Rage" property="Rage"></result>
+        <result column="Rname" property="Rname"></result>
+        <result column="Rsex" property="Rsex"></result>
+    </resultMap>
+    <select id="selectInfoByParams" resultMap="UserPara">
+        select Rid,Rname,Rage,Rsex from Ruser where Rid=#{id} or Rname=#{name}
+    </select>
+<!--    接收对象参数，方法与上相同，java和数据库类型可以不用指定，mybatis通过反射机制可以获取到-->
+    <select id="selectInfoByObject" resultType="daos.User" >
+        select Rid,Rname,Rage,Rsex from Ruser where Rname=#{Rname} or Rage=#{Rage}
+    </select>
+
+<!--    多表查询 ,使用自定义的实体类-->
+    <select id="selectManyTableSelect" resultType="vo.ManyTableSelect">
+        select product.Pid,product.Pname,Ruser.Rname from Ruser,product where product.Pid=#{Pid} and product.pid = Ruser.Pid;
+    </select>
+<!--where标签会对没有意义的or或者and进行删除
+    if语句中，test属性如果为true，则蒋if标签的内容拼接到后面。如果为false则不拼接-->
+    <select id="selectInfoByUseWhereAndIf" resultType="daos.User">
+        select Rid,Rname,Rage,Rsex,Pid from Ruser
+        <where>
+            <if test="Rid!=null and Rid!=''">
+                Rid = #{Rid}
+            </if>
+            <if test="Rname=='Rocker'">
+                or Rname=#{Rname}
+            </if>
+        </where>
+    </select>
+<!-- 测试forEach标签
+    collection：集合类型(array or list)
+    item: 便利的每一个成员，如果是对象，需要item.属性
+    open：遍历前，需要拼接的字符串
+    close：遍历后，需要拼接的字符串
+    separator：要凭借成员之间的分隔符
+-->
+    <select id="selectInfoByForEach" resultType="daos.User">
+        select Rid,Rname,Rage,Rsex,Pid from Ruser where Rid in
+        <foreach collection="list" item="resultItem" open="(" close=")" separator=",">
+            #{resultItem.Rid}
+        </foreach>
+    </select>
+
+<!--    查询所有-->
+    <select id="selectAll" resultType="daos.User">
+        select * from Ruser
+    </select>
+
+</mapper>
